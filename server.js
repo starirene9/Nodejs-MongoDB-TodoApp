@@ -29,7 +29,7 @@ app.get('/', function(request, response){ // 요청내용, 응답할 방법
 
 app.get('/checklist', function(request, response){
     response.sendFile(__dirname + '/checklist.html')
-});
+}); // 이것이 API 이다.
 
 // 어떤 사람이 /add 경로로 post 요청을 하면 ?? 을 해주세요.
 app.post('/add', function(request, response){
@@ -43,3 +43,21 @@ app.post('/add', function(request, response){
 // 1. body-parse 필요
 // 2. from 안의 input 에 구분하기 위한 name 을 꼭 써야함!
 // 3. name = "title", name = "date" 와 같이
+//
+// 서버를 REST API 하게 만들자
+// API란 무엇인가? Application Programming Interface : 서버간의 통신 규약
+// 웹 개발시 API란? 웹서버와 고객간의 소통방식 : 통신 규약
+//
+// REST API 원칙 6개
+// GET, POST, PUT, DELETE 를 REST 원칙에 의해서 쓰자
+// 1. Uniform interface : 하나의 자료는 하나의 URL로
+// 2. Client-Server 역할 구분 : 브라우저는 요청만 할 뿐, 서버는 응답만
+// 3. Stateless : 요청1과 요청2는 독립적으로 의존성이 없어야 함
+// 4. Cacheable : 캐싱이 가능해야 함 <- 크롬이 알아서 함
+// 5. Layered System
+// 6. Code on Demand
+
+// 좋은 REST API
+// 1. URL 을 명사로 작성하기
+// 2. 하위 문서는 /
+// 3. 띄어쓰기는 대시 - 이용
