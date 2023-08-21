@@ -49,20 +49,26 @@ app.get('/checklist', function (request, response) {
 
 // 1. 어떤 사람이 /add 라는 경로로 post 요청을 하면, 2. 데이터 2개 (날짜(date), 제목(title)을 보내주는데,
 // 이때 'post'라는 이름을 가진 collection에 두개 데이터를 저장하기
+
 app.post('/add', function (request, response) {  // 1.
     response.send('전송완료');
-    console.log(request.body.title);
-    console.log(request.body.date); // 2
+    // console.log(request.body.title);
+    // console.log(request.body.date); // 2
     db.collection('counter').findOne({name : '게시물갯수'}, function(error, result){
         console.log(result.totalPost);
-        var totalCount = result.totalPost;
+        var totalCount = result.totalPost; // 0 을 저장해줌
 
         // _id : 총개시물 갯수 + 1 <- autoincrement 기능을 몽고db는 직접 만들어야함 : 글마다 고유의 아이디를 갖는게 중요
         db.collection('post').insertOne({_id : totalCount + 1, 제목: request.body.title, 날짜: request.body.date}, function (error, result) {
             console.log('저장완료');
+            //  updateOne({어떤 데이터를 수정할지},{$set : {totalPost : 바꿀값}},function(){} )하나 updateMany 여러개
+            // {$inc : {totalPost : 기존값에 더해줄 값}}
+            db.collection('counter').updateOne({name:'게시물갯수'}, { $inc : {totalPost:1}}, function(error, result){
+                if(error) {return console.log(error)}
+            })
         });
 
-        // 기능 하나가 빠져있음! + counter라는 콜렉션에 있는 totalPost 라는 항목도 1 증가 시켜야 함.
+
 
     });
 });
