@@ -53,9 +53,17 @@ app.post('/add', function (request, response) {  // 1.
     response.send('전송완료');
     console.log(request.body.title);
     console.log(request.body.date); // 2
+    db.collection('counter').findOne({name : '게시물갯수'}, function(error, result){
+        console.log(result.totalPost);
+        var totalCount = result.totalPost;
 
-    db.collection('post').insertOne({제목: request.body.title, 날짜: request.body.date}, function (error, result) {
-        console.log('저장완료');
+        // _id : 총개시물 갯수 + 1 <- autoincrement 기능을 몽고db는 직접 만들어야함 : 글마다 고유의 아이디를 갖는게 중요
+        db.collection('post').insertOne({_id : totalCount + 1, 제목: request.body.title, 날짜: request.body.date}, function (error, result) {
+            console.log('저장완료');
+        });
+
+        // 기능 하나가 빠져있음! + counter라는 콜렉션에 있는 totalPost 라는 항목도 1 증가 시켜야 함.
+
     });
 });
 
