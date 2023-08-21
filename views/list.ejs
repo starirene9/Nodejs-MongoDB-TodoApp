@@ -41,13 +41,12 @@
     </div>
 </nav>
 
-<!--서버에서 가져온 할 일 리스트-->
-<h4>할일 제목 : <%= 변수이름%></h4>
-<p>할일 마감 날짜 : <%= %></p>
-
-
-
-
+<!--서버에서 가져온 할 일 리스트 : 배열 형태로 들어옴-->
+<!--반복문을 이용-->
+<% for(var i = 0; i < posts.length; i++) { %>
+    <h4>할일 제목 : <%= posts[i].제목 %> </h4>
+    <p>할일 마감 날짜 : <%= posts[i].날짜 %> </p>
+<% } %>
 
 <script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.slim.min.js"
         integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj"

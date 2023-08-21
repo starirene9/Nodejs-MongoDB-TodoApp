@@ -62,7 +62,12 @@ app.post('/add', function (request, response) {  // 1.
 //list 로 GET 요청으로 접속하면 HTML을 보여줌, 실제 DB에 저장된 데이터들로 예쁘게 꾸며진 HTML 보여주기
 
 app.get('/list', function (request, response) {
-    response.render('list.ejs'); // 외워서 쓸것! 누군가 /list 로 접속하면 list.ejs 파일을 보여 줌
+    // 데이터 꺼내는게 먼저임
+    db.collection('post').find().toArray(function(error, result){ // 순서를 잘 지켜줘야함
+        console.log(result) // 모든 데이터 가져오기 문법
+        response.render('list.ejs', {posts : result}); // object 형태로 넣어줘야 함
+    });
+
 });
 
 
