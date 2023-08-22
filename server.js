@@ -8,6 +8,9 @@ app.set('view engine', 'ejs');
 
 const url = 'mongodb+srv://starirene9:gzKhvuSABTyfrIus@cluster0.cexbyak.mongodb.net/todoapp?retryWrites=true&w=majority';
 
+// const fs = require('fs');
+// const url = fs.readFileSync('url.txt', 'utf-8').trim();
+
 var db;
 MongoClient.connect(url, {useUnifiedTopology: true}, function (error, client) {
     // database 접속이 완료되면 할 일
@@ -42,28 +45,35 @@ MongoClient.connect(url, {useUnifiedTopology: true}, function (error, client) {
 app.get('/', function (request, response) { // 요청내용, 응답할 방법
     response.sendFile(__dirname + '/index.html')
 });
+// /를 요청하면 응답으로 index.html을 보여주는데 파일 형태를 보여준다.
 
 app.get('/checklist', function (request, response) {
     response.sendFile(__dirname + '/checklist.html')
-}); // 이것이 API 이다.
+});
+// /checklist request 하면 respond with sendFile /checklist.html
 
 // 1. 어떤 사람이 /add 라는 경로로 post 요청을 하면, 2. 데이터 2개 (날짜(date), 제목(title)을 보내주는데,
 // 이때 'post'라는 이름을 가진 collection에 두개 데이터를 저장하기
 
-app.post('/add', function (request, response) {  // 1.
-    response.send('전송완료');
+//1. post 하면 /add로 이동
+app.post('/add', function (request, response) {
+    response.send('/add post 전송완료');   // respond with this message
     // console.log(request.body.title);
-    // console.log(request.body.date); // 2
+    // console.log(request.body.date);
+    // create database + 에서 counter 이라는 db 추가함
+    // db counter 에서 findone 할건데 {name : '게시물갯수'} 임
     db.collection('counter').findOne({name : '게시물갯수'}, function(error, result){
-        console.log(result.totalPost);
-        var totalCount = result.totalPost; // 0 을 저장해줌
+        console.log(result);
+        var totalCount = result.totalPost;
 
         // _id : 총개시물 갯수 + 1 <- autoincrement 기능을 몽고db는 직접 만들어야함 : 글마다 고유의 아이디를 갖는게 중요
+        // post 인 db에서 insertOne 할 건데 이걸루..
         db.collection('post').insertOne({_id : totalCount + 1, 제목: request.body.title, 날짜: request.body.date}, function (error, result) {
             console.log('저장완료');
-            //  updateOne({어떤 데이터를 수정할지},{$set : {totalPost : 바꿀값}},function(){} )하나 updateMany 여러개
-            // {$inc : {totalPost : 기존값에 더해줄 값}}
+            //  updateOne({어떤 데이터를 수정할지},{$set : {totalPost : 바꿀값}},function(){} )하나
+            //  updateMany 는 여러개
             db.collection('counter').updateOne({name:'게시물갯수'}, { $inc : {totalPost:1}}, function(error, result){
+                // {$inc : {totalPost : 기존값에 더해줄 값}}
                 if(error) {return console.log(error)}
             })
         });
