@@ -1,2 +1,0 @@
-# url.txt
-mongodb+srv://starirene9:gzKhvuSABTyfrIus@cluster0.cexbyak.mongodb.net/todoapp?retryWrites=true&w=majority

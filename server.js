@@ -13,9 +13,6 @@ app.set('view engine', 'ejs'); // ejs 설치후 이것 까지 써줘야함
 
 const url = 'mongodb+srv://starirene9:gzKhvuSABTyfrIus@cluster0.cexbyak.mongodb.net/todoapp?retryWrites=true&w=majority';
 
-// const fs = require('fs');
-// const url = fs.readFileSync('url.txt', 'utf-8').trim();
-
 var db;
 MongoClient.connect(url, {useUnifiedTopology: true}, function (error, client) {
     // database 접속이 완료되면 할 일
@@ -28,9 +25,9 @@ MongoClient.connect(url, {useUnifiedTopology: true}, function (error, client) {
     //      console.log('저장완료');
     // 데이터 저장 형식 무조건 아래 object 형태로 저장해야 함
 
-    db.collection('post').insertOne({이름: 'Bitna', _id: 100}, function (insertError, result) {
-        console.log('저장완료');
-    });
+    // db.collection('post').insertOne({이름: 'Bitna', _id: 100}, function (insertError, result) {
+    //     console.log('저장완료');
+    // });
 
     app.listen(8080, function () { // 포트 번호 8080, 열리면 하는 기능 적기
         console.log('listening on 8080') // localhost:8080 에 서버 만든거임
@@ -73,21 +70,27 @@ app.post('/add', function (request, response) {
     // console.log(request.body.date);
     // create database + 에서 counter 이라는 db 추가함
     // db counter 에서 findone 할건데 {name : '게시물갯수'} 인 데이터를 찾아주세요
-    db.collection('counter').findOne({name : '게시물갯수'}, function(error, result){
+    db.collection('counter').findOne({name: '게시물갯수'}, function (error, result) {
         console.log(result);
         var totalCount = result.totalPost; // 변수를 활용하면 됨
 
         // _id : 총개시물 갯수 + 1 <- autoincrement 기능을 몽고db는 직접 만들어야함 : 글마다 고유의 아이디를 갖는게 중요
         // db안에 post를 가지고 오세요 insertOne 할 건데 이걸루..
-        db.collection('post').insertOne({_id : totalCount + 1, 제목: request.body.title, 날짜: request.body.date}, function (error, result) {
+        db.collection('post').insertOne({
+            _id: totalCount + 1,
+            제목: request.body.title,
+            날짜: request.body.date
+        }, function (error, result) {
             console.log('저장완료');
 
             // Counter의 totalPost 도 1 증가 시켜야함
             //  updateOne({어떤 데이터를 수정할지},{수정값 $set/ $inc 등과 같은 operator(연산자) 필요!: {totalPost : 바꿀값}},function(){} )하나
             //  updateMany 는 여러개
-            db.collection('counter').updateOne({name:'게시물갯수'}, { $inc : {totalPost:1}}, function(error, result){
+            db.collection('counter').updateOne({name: '게시물갯수'}, {$inc: {totalPost:1}}, function (error, result) {
                 // {$inc : {totalPost : 기존값에 더해줄 값}}
-                if(error) {return console.log(error)}
+                if (error) {
+                    return console.log(error)}
+                response.send('전송완료');
             })
         });
 
@@ -100,16 +103,26 @@ app.post('/add', function (request, response) {
 app.get('/list', function (request, response) {
     // 1. 데이터 꺼내는게 먼저
     // db.collection('저장소이름').find().toArray(); 여기까지가 다 찾아주세요
-    db.collection('post').find().toArray(function(error, result){ // 순서를 잘 지켜줘야함
+    db.collection('post').find().toArray(function (error, result) { // 순서를 잘 지켜줘야함
         console.log(result) // 모든 데이터 가져오기 문법
 
         // 2. 보여주는게 후순위 : 뿌려주기 즉 렌더링해주기
-        response.render('list.ejs', {results : result}); // object 형태로 넣어줘야 함
+        response.render('list.ejs', {results: result}); // object 형태로 넣어줘야 함
     });
 
 });
 
+app.delete('/delete', function (request, response) {
+    console.log(request.body); // ''있는 문자형태임 _id: '1'
+    // 요청.body에 담긴 게시물 번호에 따라 db에서 게시물 삭제하면 됨
+    request.body._id = parseInt(request.body._id); // 숫자로 전환 후에 다시 담기
+    db.collection('post').deleteOne(request.body, function(error, result){
+        console.log('삭제완료');
+        response.status(200).send({ message : '성공했습니다.'}); // 응답코드로 서버가 요청 실패 성공 등 안내메세지를 띄움
+    // 200 성공, 400 실패 터미널 콘솔 : 서버가 이런 안내 메세지를 띄워 주는 것도 매우 중요하다.
 
+    })
+})
 
 
 // 서버를 REST API 하게 만들자
