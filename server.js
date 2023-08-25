@@ -7,8 +7,7 @@ app.set('view engine', 'ejs'); // ejs 설치후 이것 까지 써줘야함
 
 // Post 요청으로 서버에 데이터 전송하고 싶으면 ?
 // 1. body-parse 필요
-// 2. from 안의 input 에 구분하기 위한 name 을 꼭 써야함!
-// 3. name = "title", name = "date" 와 같이
+// 2. from 안의 input 에 구분하기 위한 name 을 꼭 써야함! name = "title", name = "date" 와 같이
 
 
 const url = 'mongodb+srv://starirene9:gzKhvuSABTyfrIus@cluster0.cexbyak.mongodb.net/todoapp?retryWrites=true&w=majority';
@@ -24,7 +23,6 @@ MongoClient.connect(url, {useUnifiedTopology: true}, function (error, client) {
     // db.collection('post').insertOne( '저장할 데이터', function(에러, 결과) {
     //      console.log('저장완료');
     // 데이터 저장 형식 무조건 아래 object 형태로 저장해야 함
-
     // db.collection('post').insertOne({이름: 'Bitna', _id: 100}, function (insertError, result) {
     //     console.log('저장완료');
     // });
@@ -44,10 +42,6 @@ MongoClient.connect(url, {useUnifiedTopology: true}, function (error, client) {
 //     response.send('빛나라의 웰니스 뷰티샵입니다.')
 // });
 
-// 0. Control + C 로 터미널창 재실행
-// 1. 터미널에 node server.js
-// 2. 서버 다시 껏다가 키면 get 요청 처리가 됨
-
 // 콜백함수 : 순차적으로 실행하고 싶을 때 쓰는 함수 안에 함수가 들어가 있는 형태이다.
 app.get('/', function (request, response) { // 요청내용, 응답할 방법
     response.sendFile(__dirname + '/index.html')
@@ -63,7 +57,7 @@ app.get('/checklist', function (request, response) {
 // 2. 데이터 2개 (날짜(date), 제목(title)을 보내주는데,
 // 이때 'post'라는 이름을 가진 collection에 두 개 데이터를 저장하기
 
-// 누가 폼에서 /add로 post 요청하면 일어나는 일들~
+// 누가 ' 폼 ' (이니까 post) 에서 /add로 post 요청하면 일어나는 일들~
 app.post('/add', function (request, response) {
     response.send('/add post 전송완료');   // respond with this message
     // console.log(request.body.title);
@@ -124,6 +118,27 @@ app.delete('/delete', function (request, response) {
     })
 })
 
+// detail2로 접속하면 deatail2.ejs 보여줌 => '/detail/:id'
+app.get('/detail/:id', function(request, response){
+    // detail/뒤에 있는 숫자를 넣어주세요. => request.params.id <- mouse를 가져가면 string임
+    // id string -> int 로 바꾸기
+    db.collection('post').findOne({_id : parseInt(request.params.id)}, function(error, result){
+        console.log(result); // 콘솔창에 띄워짐
+        response.render('detail.ejs', {data : result})
+    //     없는 게시물은 어떻게 처리할까?
+    //     사용자가 클릭하면 이동시키도록 a 태그를 이용하여 사용
+    //     주소는 이렇게 검색 http://localhost:8080/detail/19
+    })
+})
+
+
+
+
+// response.send response.render response.status(200).send({message : 'message'}}
+
+
+
+
 
 // 서버를 REST API 하게 만들자
 // API란 무엇인가? Application Programming Interface : 서버간의 통신 규약
@@ -142,3 +157,7 @@ app.delete('/delete', function (request, response) {
 // 1. URL 을 명사로 작성하기
 // 2. 하위 문서는 /
 // 3. 띄어쓰기는 대시 - 이용
+
+// 0. Control + C 로 터미널창 재실행
+// 1. 터미널에 node server.js
+// 2. 서버 다시 껏다가 키면 get 요청 처리가 됨
