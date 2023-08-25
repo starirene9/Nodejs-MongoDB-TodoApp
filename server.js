@@ -4,6 +4,9 @@ const bodyParser = require('body-parser');
 app.use(bodyParser.urlencoded({extended: true})); // Post 요청으로 서버에 데이터 전송시 필요!
 const MongoClient = require('mongodb').MongoClient;
 app.set('view engine', 'ejs'); // ejs 설치후 이것 까지 써줘야함
+app.use('/public', express.static('public'));
+// 미들웨어라고 불리며 css 파일 넣기에 사용
+// public/main.css 생성 -> server.js에 위의 코드 추가
 
 // Post 요청으로 서버에 데이터 전송하고 싶으면 ?
 // 1. body-parse 필요
@@ -44,12 +47,12 @@ MongoClient.connect(url, {useUnifiedTopology: true}, function (error, client) {
 
 // 콜백함수 : 순차적으로 실행하고 싶을 때 쓰는 함수 안에 함수가 들어가 있는 형태이다.
 app.get('/', function (request, response) { // 요청내용, 응답할 방법
-    response.sendFile(__dirname + '/index.html')
+    response.render('index.ejs')
 });
 // /를 요청하면 응답으로 index.html을 보여주는데 파일 형태를 보여준다.
 
 app.get('/checklist', function (request, response) {
-    response.sendFile(__dirname + '/checklist.html')
+    response.render('checklist.ejs')
 });
 
 
@@ -122,12 +125,24 @@ app.delete('/delete', function (request, response) {
 app.get('/detail/:id', function(request, response){
     // detail/뒤에 있는 숫자를 넣어주세요. => request.params.id <- mouse를 가져가면 string임
     // id string -> int 로 바꾸기
+
     db.collection('post').findOne({_id : parseInt(request.params.id)}, function(error, result){
         console.log(result); // 콘솔창에 띄워짐
+
+        if(error){
+            console.error('Error fetching post :', error);
+            response.status(500).send({mesage : 'Internal server error'});
+            return;
+        }
+
+        if(!result){
+            response.render('error.ejs', { errorMessage: 'Post not found' }); // Render the error page
+            return;
+        }
+
+        console.log(result); // Debugging, you can remove this
+
         response.render('detail.ejs', {data : result})
-    //     없는 게시물은 어떻게 처리할까?
-    //     사용자가 클릭하면 이동시키도록 a 태그를 이용하여 사용
-    //     주소는 이렇게 검색 http://localhost:8080/detail/19
     })
 })
 
